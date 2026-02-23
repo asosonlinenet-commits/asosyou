@@ -75,7 +75,6 @@ export async function POST(req: Request) {
       customer: process.env.ASAAS_CUSTOMER_ID,
       value: valor,
       dueDate: new Date().toISOString().split("T")[0],
-      description: "Taxa de entrada ASOS",
       externalReference: ciclo.id,
     });
 
