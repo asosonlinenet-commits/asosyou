@@ -26,11 +26,6 @@ export async function POST(req: Request) {
 
     const payment = payload.payment;
 
-    if (!payment?.externalReference) {
-      console.warn("externalReference ausente");
-      return NextResponse.json({ ok: true });
-    }
-
     const cicloId = payment.externalReference;
 
     // 🔒 Busca o ciclo correto
