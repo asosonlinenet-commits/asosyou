@@ -78,6 +78,8 @@ export async function POST(req: Request) {
       externalReference: String(ciclo.id),
     });
 
+    console.log("CRIANDO PIX COM externalReference:", ciclo.id);
+
     const payment = paymentRes.data;
 
     /* 4️⃣ SALVA NO CICLO */
