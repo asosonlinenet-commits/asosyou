@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       .from("ciclos")
       .select("id, pagou_taxa")
       .eq("id", cicloId)
-      .maybesingle();
+      .maybeSingle();
 
     if (!ciclo) {
       console.error("Ciclo não encontrado:", cicloId);
