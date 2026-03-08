@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    const cicloId = payment.externalReference;
+    const cicloId = String(payment.externalReference);
 
     // 🔒 Busca o ciclo correto
     const { data: ciclo } = await supabase
