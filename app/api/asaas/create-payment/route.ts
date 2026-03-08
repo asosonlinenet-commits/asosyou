@@ -75,7 +75,7 @@ export async function POST(req: Request) {
       customer: process.env.ASAAS_CUSTOMER_ID,
       value: valor,
       dueDate: new Date().toISOString().split("T")[0],
-      externalReference: ciclo.id,
+      externalReference: String(ciclo.id),
     });
 
     const payment = paymentRes.data;
