@@ -13,71 +13,46 @@ export async function POST(req: Request) {
   try {
     const payload = await req.json();
 
-    console.log("WEBHOOK ASAAS EVENT:", payload.event);
+    console.log("WEBHOOK EVENT:", payload.event);
 
-    if (!payload?.event) {
-      return NextResponse.json({ ok: true });
-    }
-
-    // Só processa pagamento recebido
     if (payload.event !== "PAYMENT_RECEIVED") {
       return NextResponse.json({ ok: true });
     }
 
     const payment = payload.payment;
 
-    let cicloId: string | null = null;
-
-    // 1️⃣ tenta usar externalReference
-    if (payment?.externalReference) {
-      cicloId = String(payment.externalReference);
-      console.log("externalReference recebido:", cicloId);
-    }
-
-    let ciclo: any = null;
-
-    // 🔎 busca pelo cicloId
-    if (cicloId) {
-      const { data } = await supabase
-        .from("ciclos")
-        .select("id, pagou_taxa")
-        .eq("id", cicloId)
-        .maybeSingle();
-
-      ciclo = data;
-    }
-
-    // 2️⃣ fallback → busca pelo payment.id
-    if (!ciclo && payment?.id) {
-      console.log("Buscando ciclo pelo payment.id:", payment.id);
-
-      const { data } = await supabase
-        .from("ciclos")
-        .select("id, pagou_taxa")
-        .eq("asaas_payment_id", payment.id)
-        .maybeSingle();
-
-      ciclo = data;
-      cicloId = data?.id ?? null;
-    }
-
-    if (!ciclo) {
-      console.error("Ciclo não encontrado para pagamento:", payment.id);
+    // 🔒 IGNORA QUALQUER PIX QUE NÃO VEIO DO SISTEMA
+    if (!payment?.externalReference) {
+      console.log("Pagamento ignorado - sem externalReference");
       return NextResponse.json({ ok: true });
     }
 
-    // Idempotência
+    const cicloId = String(payment.externalReference);
+
+    // 🔎 Busca o ciclo correto
+    const { data: ciclo } = await supabase
+      .from("ciclos")
+      .select("id, pagou_taxa")
+      .eq("id", cicloId)
+      .maybeSingle();
+
+    if (!ciclo) {
+      console.log("Ciclo não encontrado:", cicloId);
+      return NextResponse.json({ ok: true });
+    }
+
+    // 🔁 Evita processar duas vezes
     if (ciclo.pagou_taxa === true) {
       console.log("Pagamento já processado:", cicloId);
       return NextResponse.json({ ok: true });
     }
 
-    // ✅ CONFIRMA PAGAMENTO NO CICLO
+    // ✅ Libera o ciclo
     const { error } = await supabase
       .from("ciclos")
       .update({
         pagou_taxa: true,
-        asaas_payment_id: payment.id,
+        asaas_payment_id: payment.id
       })
       .eq("id", cicloId);
 
@@ -85,11 +60,12 @@ export async function POST(req: Request) {
       throw error;
     }
 
-    console.log("CICLO LIBERADO COM SUCESSO:", cicloId);
+    console.log("CICLO LIBERADO:", cicloId);
 
     return NextResponse.json({ success: true });
+
   } catch (err: any) {
-    console.error("ERRO WEBHOOK ASAAS:", err.message);
+    console.error("ERRO WEBHOOK:", err.message);
     return NextResponse.json({ ok: true });
   }
 }
