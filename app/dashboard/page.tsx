@@ -29,12 +29,12 @@ export default function DashboardPage() {
 
   const compartilharImagem = async () => {
   try {
-    const imageUrl = "/recebi-asos.png";
+    const imageUrl = "/images/recebi-asos.png";
 
     const response = await fetch(imageUrl);
     const blob = await response.blob();
 
-    const file = new File([blob], "recebi-asos.png", {
+    const file = new File([blob], "/images/recebi-asos.png", {
       type: blob.type,
     });
 
