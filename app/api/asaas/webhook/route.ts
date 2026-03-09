@@ -24,33 +24,16 @@ export async function POST(req: Request) {
 
     console.log("WEBHOOK EVENT:", payload.event);
 
-    // 🔒 IGNORA EVENTOS QUE NÃO SÃO PAGAMENTO
     if (payload.event !== "PAYMENT_RECEIVED") {
       return NextResponse.json({ ok: true });
     }
 
-    const eventId = payload.id;
-
-    // 🔒 EVITA PROCESSAR O MESMO EVENTO MAIS DE UMA VEZ
-    const { data: existing } = await supabase
-      .from("asaas_events")
-      .select("id")
-      .eq("id", eventId)
-      .maybeSingle();
-
-    if (existing) {
-      console.log("Evento já processado:", eventId);
-      return NextResponse.json({ ok: true });
-    }
-
-    await supabase.from("asaas_events").insert({ id: eventId });
-
     const payment = payload.payment;
 
-    // 🔎 CONFERE PAGAMENTO DIRETO NA API ASAAS
+    // 🔎 BUSCA O PAGAMENTO DIRETO NA API ASAAS
     const { data } = await asaas.get(`/payments/${payment.id}`);
 
-    // 🔒 IGNORA PAGAMENTOS QUE NÃO FORAM CRIADOS PELO SISTEMA
+    // 🔒 IGNORA PAGAMENTOS QUE NÃO VIERAM DO SISTEMA
     if (!data.externalReference) {
       console.log("Pagamento ignorado - não pertence ao sistema");
       return NextResponse.json({ ok: true });
@@ -69,7 +52,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    // 🔁 EVITA PROCESSAMENTO DUPLICADO
     if (ciclo.pagou_taxa === true) {
       console.log("Pagamento já processado:", cicloId);
       return NextResponse.json({ ok: true });
