@@ -75,13 +75,13 @@ export async function POST(req: Request) {
     }
 
     // ✅ LIBERA CICLO
-    const { error } = await supabase
-      .from("ciclos")
-      .update({
-        pagou_taxa: true,
-        asaas_payment_id: data.id
-      })
-      .eq("asaas_payment_id", data.id);
+const { error } = await supabase
+  .from("ciclos")
+  .update({
+    pagou_taxa: true
+  })
+  .eq("asaas_payment_id", data.id)
+  .select();
 
     if (error) {
       throw error;
