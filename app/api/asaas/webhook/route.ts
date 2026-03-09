@@ -56,38 +56,38 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    const cicloId = String(data.externalReference);
-
+    // 🔎 BUSCA CICLO PELO PAYMENT ID
     const { data: ciclo } = await supabase
       .from("ciclos")
       .select("id, pagou_taxa")
-      .eq("id", cicloId)
+      .eq("asaas_payment_id", data.id)
       .maybeSingle();
 
     if (!ciclo) {
-      console.log("Ciclo não encontrado:", cicloId);
+      console.log("Ciclo não encontrado para payment:", data.id);
       return NextResponse.json({ ok: true });
     }
 
     // 🔁 EVITA PROCESSAMENTO DUPLICADO
     if (ciclo.pagou_taxa === true) {
-      console.log("Pagamento já processado:", cicloId);
+      console.log("Pagamento já processado:", data.id);
       return NextResponse.json({ ok: true });
     }
 
+    // ✅ LIBERA CICLO
     const { error } = await supabase
       .from("ciclos")
       .update({
         pagou_taxa: true,
         asaas_payment_id: data.id
       })
-      .eq("id", cicloId);
+      .eq("asaas_payment_id", data.id);
 
     if (error) {
       throw error;
     }
 
-    console.log("CICLO LIBERADO:", cicloId);
+    console.log("CICLO LIBERADO:", data.id);
 
     return NextResponse.json({ success: true });
 
