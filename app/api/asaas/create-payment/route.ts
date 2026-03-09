@@ -58,16 +58,24 @@ export async function POST(req: Request) {
     });
 
     /* 2️⃣ SE JÁ TEM COBRANÇA → BUSCA NO ASAAS */
-    if (ciclo.asaas_payment_id) {
-      const paymentRes = await api.get(
-        `/payments/${ciclo.asaas_payment_id}`
-      );
+if (ciclo.asaas_payment_id) {
+  const paymentRes = await api.get(`/payments/${ciclo.asaas_payment_id}`);
+  const payment = paymentRes.data;
 
-      return NextResponse.json({
-        success: true,
-        payment: paymentRes.data,
-      });
-    }
+  // Se ainda está pendente, reutiliza
+  if (payment.status === "PENDING") {
+    return NextResponse.json({
+      success: true,
+      payment
+    });
+  }
+
+  // Se já foi pago ou cancelado, limpa para criar novo
+  await supabase
+    .from("ciclos")
+    .update({ asaas_payment_id: null })
+    .eq("id", ciclo.id);
+}
 
     /* 🔎 NOVO LOG DE DIAGNÓSTICO */
     console.log("DEBUG CREATE PAYMENT", {
