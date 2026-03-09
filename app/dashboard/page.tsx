@@ -152,7 +152,7 @@ export default function DashboardPage() {
           </p>
 
 <img
-  src="images/recebi-asos.png"
+  src="/images/recebi-asos.png"
   alt="Recebi do ASOS"
   className="mx-auto mb-1 max-w-xs rounded-lg"
 />
