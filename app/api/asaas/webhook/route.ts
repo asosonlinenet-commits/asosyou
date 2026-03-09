@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   try {
     const payload = await req.json();
 
-    console.log("WEBHOOK ASAAS:", payload.event);
+    console.log("WEBHOOK ASAAS EVENT:", payload.event);
 
     if (!payload?.event) {
       return NextResponse.json({ ok: true });
@@ -26,28 +26,49 @@ export async function POST(req: Request) {
 
     const payment = payload.payment;
 
-    if (!payment?.externalReference) {
-      console.warn("externalReference ausente");
-      return NextResponse.json({ ok: true });
+    let cicloId: string | null = null;
+
+    // 1️⃣ tenta usar externalReference
+    if (payment?.externalReference) {
+      cicloId = String(payment.externalReference);
+      console.log("externalReference recebido:", cicloId);
     }
 
-    const cicloId = String(payment.externalReference);
+    let ciclo: any = null;
 
-    // 🔒 Busca o ciclo correto
-    const { data: ciclo } = await supabase
-      .from("ciclos")
-      .select("id, pagou_taxa")
-      .eq("id", cicloId)
-      .maybeSingle();
+    // 🔎 busca pelo cicloId
+    if (cicloId) {
+      const { data } = await supabase
+        .from("ciclos")
+        .select("id, pagou_taxa")
+        .eq("id", cicloId)
+        .maybeSingle();
+
+      ciclo = data;
+    }
+
+    // 2️⃣ fallback → busca pelo payment.id
+    if (!ciclo && payment?.id) {
+      console.log("Buscando ciclo pelo payment.id:", payment.id);
+
+      const { data } = await supabase
+        .from("ciclos")
+        .select("id, pagou_taxa")
+        .eq("asaas_payment_id", payment.id)
+        .maybeSingle();
+
+      ciclo = data;
+      cicloId = data?.id ?? null;
+    }
 
     if (!ciclo) {
-      console.error("Ciclo não encontrado:", cicloId);
+      console.error("Ciclo não encontrado para pagamento:", payment.id);
       return NextResponse.json({ ok: true });
     }
 
     // Idempotência
     if (ciclo.pagou_taxa === true) {
-      console.log("Pagamento já processado");
+      console.log("Pagamento já processado:", cicloId);
       return NextResponse.json({ ok: true });
     }
 
