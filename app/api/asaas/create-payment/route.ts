@@ -69,6 +69,14 @@ export async function POST(req: Request) {
       });
     }
 
+    /* 🔎 NOVO LOG DE DIAGNÓSTICO */
+    console.log("DEBUG CREATE PAYMENT", {
+      externalReferenceRecebido: externalReference,
+      ciclo_id_usado_no_externalReference: ciclo.id,
+      user_id_do_ciclo: ciclo.user_id,
+      valor,
+    });
+
     /* 3️⃣ CRIA COBRANÇA */
     const paymentRes = await api.post("/payments", {
       billingType: "PIX",
