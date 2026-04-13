@@ -62,9 +62,9 @@ export default function Home() {
 
               <div>
                 <span className="text-[#00C48C] font-semibold block mb-2">
-                  3. Acompanhamento
+                  3. Acompanhamento e divulgação
                 </span>
-                Visualização clara da sua posição.
+                Visualização clara da sua posição, e credibilidade para divulgar.
               </div>
             </div>
           </div>
@@ -123,7 +123,7 @@ export default function Home() {
                 </span>
                 <p className="text-gray-400 text-sm leading-relaxed">
                   Após entrar, você acompanha sua posição e o andamento do sistema
-                  de forma simples e transparente.
+                  de forma simples e transparente, e é aqui que o segredo se revela: VOCÊ PRECISA DIVULGAR A IDÉIA, AFIM DE FAZER A AJUDA ACONTECER, SEU ÚNICO TRABALHO É MULTIPLICAR A IDÉIA.
                 </p>
               </div>
             </div>
