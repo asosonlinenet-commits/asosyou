@@ -24,9 +24,10 @@ export default function Popup() {
       <div className="bg-white p-6 rounded-xl text-center max-w-sm">
         <h2 className="text-xl font-bold mb-2">🔞 Aviso Importante</h2>
         <p className="mb-2">Este site é para maiores de 18 anos.</p>
-        <p className="mb-2">Não se trata de apostas.</p>
+        <p className="mb-2">Não se trata de apostas, nem tão pouco lidar com a sorte!!</p>
+        <h2 className="text-xl font-bold mb-2">Aqui você inviste R$50,00 e tem GARANTIDO R$300,00 após um trabalho simples.</h2>
         <p className="mb-4 text-sm text-gray-600">
-          Os resultados podem variar e não são garantidos.
+          Quanto mais indicar, mais rápido recebe!!!.
         </p>
 
         <button
